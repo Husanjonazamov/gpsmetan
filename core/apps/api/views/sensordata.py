@@ -28,6 +28,13 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         "create": CreateSensordataSerializer,
     }
     
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['get'], url_path=r"by-device/(?P<device_id>\d+)", permission_classes=[AllowAny])
     def by_device(self, request, device_id):
         try:
