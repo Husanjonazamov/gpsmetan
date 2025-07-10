@@ -12,7 +12,7 @@ class VehicleModel(AbstractBaseModel):
         verbose_name=_("Device"),
         blank=True, null=True
     )
-    number = models.IntegerField(verbose_name=_("Number"))
+    number = models.CharField(verbose_name=_("Number"), max_length=100)
     category = models.CharField(verbose_name=_("Category"), max_length=100)
     color = models.CharField(verbose_name=_("Color"), max_length=50)
     year = models.IntegerField(verbose_name=_("Year"))
