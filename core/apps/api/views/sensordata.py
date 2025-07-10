@@ -1,0 +1,45 @@
+from django_core.mixins import BaseViewSetMixin
+from drf_spectacular.utils import extend_schema
+from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import ModelViewSet
+
+from core.apps.api.models import SensordataModel, DeviceModel
+from core.apps.api.serializers.sensordata import (
+    CreateSensordataSerializer,
+    ListSensordataSerializer,
+    RetrieveSensordataSerializer,
+    SensorDeviceItemSerializer
+)
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+
+
+@extend_schema(tags=["SensorData"])
+class SensordataView(BaseViewSetMixin, ModelViewSet):
+    queryset = SensordataModel.objects.all()
+    serializer_class = ListSensordataSerializer
+    permission_classes = [AllowAny]
+
+    action_permission_classes = {}
+    action_serializer_class = {
+        "list": ListSensordataSerializer,
+        "retrieve": RetrieveSensordataSerializer,
+        "create": CreateSensordataSerializer,
+    }
+    
+    @action(detail=False, methods=['get'], url_path=r"by-device/(?P<device_id>\d+)", permission_classes=[AllowAny])
+    def by_device(self, request, device_id):
+        try:
+            device = DeviceModel.objects.get(deviceId=device_id)
+        except DeviceModel.DoesNotExist:
+            return Response({"error": "Device not found"}, status=404)
+
+        sensor_data = self.queryset.filter(deviceId=device).order_by("-time")
+        serializer = ListSensordataSerializer(sensor_data, many=True)
+        
+        return Response({
+            "deviceId": device.deviceId,
+            "data": serializer.data
+        })
+            

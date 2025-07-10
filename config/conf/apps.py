@@ -5,7 +5,6 @@ APPS = [
     "cacheops",
     
     
-    
     "drf_spectacular",
     "rest_framework",
     "corsheaders",
