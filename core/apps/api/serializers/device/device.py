@@ -14,6 +14,7 @@ class BaseDeviceSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "deviceId",
+            "status",
         ]
 
 
