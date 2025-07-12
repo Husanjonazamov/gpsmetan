@@ -2,25 +2,24 @@ from rest_framework.viewsets import ModelViewSet
 from django.db.models.functions import TruncHour, TruncDay
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from core.apps.api.models import SensordataModel
-from core.apps.api.serializers.sensordata import HourFlowSerializer
 from core.apps.api.filters.sensordata import SensorDataFilter
 from django_core.mixins import BaseViewSetMixin
 
 from rest_framework.permissions import AllowAny
+from core.apps.api.serializers.sensordata import BaseSensordataSerializer
+
 
 
 class SensorDataViewSet(BaseViewSetMixin, ModelViewSet):
     queryset = SensordataModel.objects.all()
-    serializer_class = HourFlowSerializer
+    serializer_class = BaseSensordataSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = SensorDataFilter
     permission_classes = [AllowAny]
 
-    @action(detail=False, methods=['get'], url_path='stats')
-    def stats(self, request):
+    def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         if 'daily' in request.GET:
@@ -29,10 +28,11 @@ class SensorDataViewSet(BaseViewSetMixin, ModelViewSet):
                 .annotate(total_flow=Sum('flow')) \
                 .order_by('hour')
 
-            return Response([
+            result = [
                 {"hour": item['hour'].strftime("%H:00"), "flow": round(item['total_flow'], 2)}
                 for item in data
-            ])
+            ]
+            return Response(result)
 
         elif 'weekly' in request.GET or 'monthly' in request.GET:
             data = queryset.annotate(day=TruncDay('time')) \
@@ -40,9 +40,10 @@ class SensorDataViewSet(BaseViewSetMixin, ModelViewSet):
                 .annotate(total_flow=Sum('flow')) \
                 .order_by('day')
 
-            return Response([
+            result = [
                 {"date": item['day'].strftime("%Y-%m-%d"), "flow": round(item['total_flow'], 2)}
                 for item in data
-            ])
+            ]
+            return Response(result)
 
-        return Response({"error": "daily, weekly yoki monthly parametrlardan birini bering."}, status=400)
+        return super().list(request, *args, **kwargs)
