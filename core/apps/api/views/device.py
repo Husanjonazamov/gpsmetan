@@ -28,6 +28,7 @@ class DeviceView(BaseViewSetMixin, ModelViewSet):
         "list": ListDeviceSerializer,
         "retrieve": RetrieveDeviceSerializer,
         "create": CreateDeviceSerializer,
+        "partial_update": CreateDeviceSerializer
     }
     
 

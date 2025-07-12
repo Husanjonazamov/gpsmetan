@@ -6,6 +6,7 @@ from django_core.models import AbstractBaseModel
 class DeviceStatusChoice(models.TextChoices):
     connected = "connected", _("Ulangan")
     disconnected = "disconnected", _("Ulanmagan")
+    waiting = "waiting", _("Kutilmoqda")
 
 
 

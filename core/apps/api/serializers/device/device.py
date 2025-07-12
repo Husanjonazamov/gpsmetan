@@ -4,10 +4,6 @@ from core.apps.api.models import DeviceModel
 
 
 
-
-
-
-
 class BaseDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceModel
@@ -31,4 +27,5 @@ class CreateDeviceSerializer(BaseDeviceSerializer):
         fields = [
             "id",
             "deviceId",
+            "status",
         ]
