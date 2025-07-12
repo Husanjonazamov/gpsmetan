@@ -11,6 +11,7 @@ class BaseDeviceSerializer(serializers.ModelSerializer):
             "id",
             "deviceId",
             "status",
+            "is_active"
         ]
 
 
@@ -28,4 +29,5 @@ class CreateDeviceSerializer(BaseDeviceSerializer):
             "id",
             "deviceId",
             "status",
+            "is_active"
         ]

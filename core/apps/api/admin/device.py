@@ -8,5 +8,7 @@ from core.apps.api.models import DeviceModel
 class DeviceAdmin(ModelAdmin):
     list_display = (
         "id",
-        "__str__",
+        "deviceId",
+        "is_active",
+        "status"
     )

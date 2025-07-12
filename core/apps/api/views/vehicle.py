@@ -29,8 +29,6 @@ class VehicleView(BaseViewSetMixin, ModelViewSet):
         "create": CreateVehicleSerializer,
         "partial_update": CreateVehicleSerializer,
         "update": CreateVehicleSerializer 
-
-
     }
     
     

@@ -11,7 +11,37 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
 
+
+
+class DeviceStatusViewSet(BaseViewSetMixin, ModelViewSet):
+    queryset = DeviceModel.objects.all()
+    serializer_class = ListDeviceSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=["get"], url_path="inactive")
+    def inactive_devices(self, request):
+        queryset = DeviceModel.objects.filter(is_active=False)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=["post"], url_path="activate")
+    def activate_device(self, request):
+        device_id = request.data.get("deviceId")
+        
+        device_id = int(device_id)
+        device = DeviceModel.objects.get(deviceId=device_id)
+    
+
+        device.is_active = True
+        device.save(update_fields=["is_active"])
+
+        return Response({
+            "status": True,
+            "message": f"Yartildi"
+        }, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["device"])
@@ -31,11 +61,16 @@ class DeviceView(BaseViewSetMixin, ModelViewSet):
         "partial_update": CreateDeviceSerializer
     }
     
+    def get_queryset(self):
+        return DeviceModel.objects.filter(is_active=True)
+    
 
     
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        self.perform_destroy(instance)
+        instance.is_active = False
+        instance.save(update_fields=["is_active"])
+        
         return Response({
             "status": True,
             "message": "o'chirildi"

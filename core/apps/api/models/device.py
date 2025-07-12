@@ -18,6 +18,7 @@ class DeviceModel(AbstractBaseModel):
         choices=DeviceStatusChoice.choices,
         default=DeviceStatusChoice.disconnected
     )
+    is_active = models.BooleanField(verbose_name=_("Faolmi ?"), default=False)
 
     def __str__(self):
         return str(self.deviceId)
