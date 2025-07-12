@@ -1,28 +1,26 @@
-
-from django.db.models.functions import TruncHour, TruncDay
+from django.db.models.functions import TruncHour
 from django.db.models import Sum
+from datetime import datetime
 
 def get_filtered_device_stats(queryset, request):
     if 'daily' in request.GET:
-        data = queryset.annotate(hour=TruncHour('time')) \
-            .values('hour') \
-            .annotate(total_flow=Sum('flow')) \
-            .order_by('hour')
+        try:
+            date_str = request.GET.get('daily')
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
 
-        return [
-            {"hour": item['hour'].strftime("%H:00"), "flow": round(item['total_flow'], 2)}
-            for item in data
-        ]
+            print("FILTER DATE OBJ:", date_obj)
 
-    elif 'weekly' in request.GET or 'monthly' in request.GET:
-        data = queryset.annotate(day=TruncDay('time')) \
-            .values('day') \
-            .annotate(total_flow=Sum('flow')) \
-            .order_by('day')
+            queryset = queryset.filter(time__date=date_obj)
 
-        return [
-            {"date": item['day'].strftime("%Y-%m-%d"), "flow": round(item['total_flow'], 2)}
-            for item in data
-        ]
+            data = queryset.annotate(hour=TruncHour('time')) \
+                .values('hour') \
+                .annotate(total_flow=Sum('flow')) \
+                .order_by('hour')
 
-    return None
+            return [
+                {"hour": item['hour'].strftime("%H:00"), "flow": round(item['total_flow'], 2)}
+                for item in data
+            ]
+        except Exception as e:
+            print("Xatolik (daily):", e)
+            return []
