@@ -9,12 +9,15 @@ from core.apps.api.serializers.sensordata import HourFlowSerializer
 from core.apps.api.filters.sensordata import SensorDataFilter
 from django_core.mixins import BaseViewSetMixin
 
+from rest_framework.permissions import AllowAny
+
 
 class SensorDataViewSet(BaseViewSetMixin, ModelViewSet):
     queryset = SensordataModel.objects.all()
     serializer_class = HourFlowSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = SensorDataFilter
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
