@@ -46,22 +46,31 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         try:
             device = DeviceModel.objects.get(deviceId=device_id)
         except DeviceModel.DoesNotExist:
-            return Response({"error": "Device not found"}, status=404)
+            return Response({"error": "Device topilmadi"}, status=404)
 
-        sensor_data = self.queryset.filter(deviceId=device)
-        sensor_data = self.filter_queryset(sensor_data) 
+        queryset = self.queryset.filter(deviceId=device)
 
-        stats = get_filtered_device_stats(sensor_data, request)
-        if stats is not None:
+        stats_result = get_filtered_device_stats(queryset, request)
+
+        if stats_result["type"] != "none":
             return Response({
-                "deviceId": device.deviceId,
-                "stats": stats
+                "status": True,
+                "data": {
+                    "deviceId": device.deviceId,
+                    "stats": stats_result["data"]
+                }
             })
 
-        serializer = ListSensordataSerializer(sensor_data.order_by("-time"), many=True)
+        sensor_data = queryset.order_by("-time")
+        serializer = ListSensordataSerializer(sensor_data, many=True)
+        
         return Response({
-            "deviceId": device.deviceId,
-            "data": serializer.data
+            "status": True,
+            "data": {
+                "deviceId": device.deviceId,
+                "data": serializer.data
+            }
         })
 
-            
+
+                
