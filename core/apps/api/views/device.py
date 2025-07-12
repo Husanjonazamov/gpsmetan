@@ -44,6 +44,7 @@ class DeviceStatusViewSet(BaseViewSetMixin, ModelViewSet):
         }, status=status.HTTP_200_OK)
 
 
+
 @extend_schema(tags=["device"])
 class DeviceView(BaseViewSetMixin, ModelViewSet):
     queryset = DeviceModel.objects.all()
