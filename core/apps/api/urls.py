@@ -6,14 +6,12 @@ from core.apps.api.views import (
     VehicleView,
     DeviceStatusViewSet
 )
-from core.apps.api.views.sensorfilter import SensorFilterDataViewSet
 
 router = DefaultRouter()
 router.register(r"sensor-data", SensordataView, basename="sensor")
 router.register(r"device", DeviceView, basename="device")
 router.register(r"vehicle", VehicleView, basename="vehicle")
 router.register(r"device-activate", DeviceStatusViewSet, basename="device-active")
-router.register(r"sensor-data-filter", SensorFilterDataViewSet, basename="sensor-data-filter")
 
 
 urlpatterns = [

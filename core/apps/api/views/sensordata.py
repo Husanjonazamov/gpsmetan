@@ -13,6 +13,9 @@ from core.apps.api.serializers.sensordata import (
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from core.apps.api.views.statistika import get_filtered_device_stats
+
+
 
 
 @extend_schema(tags=["SensorData"])
@@ -35,6 +38,9 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         self.perform_create(serializer)
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
     
+    
+    
+    
     @action(detail=False, methods=['get'], url_path=r"by-device/(?P<device_id>\d+)", permission_classes=[AllowAny])
     def by_device(self, request, device_id):
         try:
@@ -42,11 +48,20 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         except DeviceModel.DoesNotExist:
             return Response({"error": "Device not found"}, status=404)
 
-        sensor_data = self.queryset.filter(deviceId=device).order_by("-time")
-        serializer = ListSensordataSerializer(sensor_data, many=True)
-        
+        sensor_data = self.queryset.filter(deviceId=device)
+        sensor_data = self.filter_queryset(sensor_data) 
+
+        stats = get_filtered_device_stats(sensor_data, request)
+        if stats is not None:
+            return Response({
+                "deviceId": device.deviceId,
+                "stats": stats
+            })
+
+        serializer = ListSensordataSerializer(sensor_data.order_by("-time"), many=True)
         return Response({
             "deviceId": device.deviceId,
             "data": serializer.data
         })
+
             
