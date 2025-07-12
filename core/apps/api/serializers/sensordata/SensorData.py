@@ -5,11 +5,6 @@ from core.apps.api.models import SensordataModel, DeviceModel
 
 
 
-class HourFlowSerializer(serializers.Serializer):
-    hour = serializers.CharField()
-    flow = serializers.FloatField()
-
-
 class SensorDeviceItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = SensordataModel

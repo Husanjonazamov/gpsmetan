@@ -7,12 +7,13 @@ from core.apps.api.models import SensordataModel
 from core.apps.api.filters.sensordata import SensorDataFilter
 from django_core.mixins import BaseViewSetMixin
 
+from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import AllowAny
 from core.apps.api.serializers.sensordata import BaseSensordataSerializer
 
 
-
-class SensorDataViewSet(BaseViewSetMixin, ModelViewSet):
+@extend_schema(tags=["SensorfilterData"])
+class SensorFilterDataViewSet(BaseViewSetMixin, ModelViewSet):
     queryset = SensordataModel.objects.all()
     serializer_class = BaseSensordataSerializer
     filter_backends = [DjangoFilterBackend]
