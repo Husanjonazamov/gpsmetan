@@ -55,21 +55,16 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         if stats_result["type"] != "none":
             return Response({
                 "status": True,
-                "data": {
-                    "deviceId": device.deviceId,
-                    "stats": stats_result["data"]
-                }
+                "deviceId": device.deviceId,
+                "stats": stats_result["data"]
             })
-
         sensor_data = queryset.order_by("-time")
         serializer = ListSensordataSerializer(sensor_data, many=True)
         
         return Response({
             "status": True,
-            "data": {
-                "deviceId": device.deviceId,
-                "data": serializer.data
-            }
+            "deviceId": device.deviceId,
+            "sensors": serializer.data
         })
 
 
