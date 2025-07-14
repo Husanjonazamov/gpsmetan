@@ -8,28 +8,46 @@ CENTER_LAT = 41.3123
 CENTER_LON = 69.2791
 RADIUS_KM = 120  
 
-DAYS = 31   # 31 kunlik
-TOTAL_POSTS = DAYS  # Har kuni 1 dona
+TOTAL_POSTS = 24  # Har soatga bitta
 
 # API ma'lumotlari
 API_URL = "https://gpsmetan.felixits.uz/api/sensor-data/"
-DEVICE_ID = 897
+DEVICE_ID = 789
 
-POST_HOUR = 13
-POST_MINUTE = 54
+# 1 gradus taxminan 111 km
+KM_IN_DEGREE = 111
 
-def generate_path_coordinates(center_lat, center_lon, radius_km, points):
-    coords = []
+# Harakat uchun trayektoriya yasash
+def generate_movement_path(start_lat, start_lon, radius_km, points):
+    path = []
+    current_lat = start_lat
+    current_lon = start_lon
+
     for i in range(points):
-        angle = 2 * math.pi * i / points
-        dlat = (radius_km / 111) * math.cos(angle)
-        dlon = (radius_km / (111 * math.cos(math.radians(center_lat)))) * math.sin(angle)
-        coords.append((center_lat + dlat, center_lon + dlon))
-    return coords
+        # Har soatda kichik farq bilan oldinga yurish
+        step_km = random.uniform(3, 7)  # Har soatda 3km dan 7km gacha yurish
+        angle = random.uniform(0, 2 * math.pi)  # Tasodifiy yo'nalish
 
-coordinates = generate_path_coordinates(CENTER_LAT, CENTER_LON, RADIUS_KM, TOTAL_POSTS)
+        dlat = (step_km / KM_IN_DEGREE) * math.cos(angle)
+        dlon = (step_km / (KM_IN_DEGREE * math.cos(math.radians(current_lat)))) * math.sin(angle)
 
-simulation_start_date = datetime(2025, 7, 8)
+        current_lat += dlat
+        current_lon += dlon
+
+        # Radiusdan chiqib ketmasin
+        distance_from_center = math.sqrt(((current_lat - start_lat) * KM_IN_DEGREE) ** 2 +
+                                         ((current_lon - start_lon) * KM_IN_DEGREE * math.cos(math.radians(start_lat))) ** 2)
+
+        if distance_from_center > radius_km:
+            # Agar 120km dan chiqib ketsa, orqaga qaytarib olamiz
+            current_lat -= dlat * 2
+            current_lon -= dlon * 2
+
+        path.append((current_lat, current_lon))
+
+    return path
+
+today = datetime.now().date()
 
 def generate_random_data(lat, lon, current_time):
     return {
@@ -42,11 +60,14 @@ def generate_random_data(lat, lon, current_time):
         "temperature": round(random.uniform(20.0, 30.0), 1)
     }
 
-print("Yuborish boshlandi...")
+# Trayektoriya hosil qilamiz
+movement_path = generate_movement_path(CENTER_LAT, CENTER_LON, RADIUS_KM, TOTAL_POSTS)
 
-for day_offset in range(DAYS):
-    current_time = simulation_start_date + timedelta(days=day_offset, hours=POST_HOUR, minutes=POST_MINUTE)
-    lat, lon = coordinates[day_offset]
+print("Bugungi 24 soatlik yurish trayektoriyasi yuborish boshlandi...")
+
+for hour in range(24):
+    current_time = datetime.combine(today, datetime.min.time()) + timedelta(hours=hour)
+    lat, lon = movement_path[hour]
     data = generate_random_data(lat, lon, current_time)
 
     try:
@@ -55,6 +76,6 @@ for day_offset in range(DAYS):
     except Exception as e:
         print(f"Xato: {e}")
 
-    time.sleep(0.05)  
+    time.sleep(0.05)
 
-print(f"{DAYS} kunlik simulyatsiya yuborildi.")
+print("24 soatlik simulyatsiya tugadi.")

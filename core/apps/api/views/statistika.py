@@ -2,7 +2,6 @@ from django.db.models.functions import TruncHour, TruncDay
 from django.db.models import Sum
 from datetime import datetime, timedelta
 
-
 def get_filtered_device_stats(queryset, request):
     if 'daily' in request.GET:
         try:
@@ -21,13 +20,21 @@ def get_filtered_device_stats(queryset, request):
                 hour_start = item['hour']
                 hour_end = hour_start + timedelta(hours=1)
 
-                coord = queryset.filter(time__gte=hour_start, time__lt=hour_end).values('lat', 'lon').first()
+                points = queryset.filter(time__gte=hour_start, time__lt=hour_end).values('time', 'lat', 'lon', 'pressure')
+
+                path = []
+                for point in points:
+                    path.append({
+                        "time": point['time'].isoformat(),
+                        "lat": point['lat'],
+                        "lon": point['lon'],
+                        "pressure": point['pressure']
+                    })
 
                 response_data.append({
                     "hour": hour_start.strftime("%H:00"),
                     "flow": round(item['total_flow'], 2),
-                    "lat": coord['lat'] if coord else None,
-                    "lon": coord['lon'] if coord else None
+                    "path": path
                 })
 
             return {"type": "daily", "data": response_data}
@@ -55,13 +62,21 @@ def get_filtered_device_stats(queryset, request):
                 day_start = item['day']
                 day_end = day_start + timedelta(days=1)
 
-                coord = queryset.filter(time__gte=day_start, time__lt=day_end).values('lat', 'lon').first()
+                points = queryset.filter(time__gte=day_start, time__lt=day_end).values('time', 'lat', 'lon', 'pressure')
+
+                path = []
+                for point in points:
+                    path.append({
+                        "time": point['time'].isoformat(),
+                        "lat": point['lat'],
+                        "lon": point['lon'],
+                        "pressure": point['pressure']
+                    })
 
                 response_data.append({
                     "date": day_start.strftime("%Y-%m-%d"),
                     "flow": round(item['total_flow'], 2),
-                    "lat": coord['lat'] if coord else None,
-                    "lon": coord['lon'] if coord else None
+                    "path": path
                 })
 
             return {"type": "range", "data": response_data}
