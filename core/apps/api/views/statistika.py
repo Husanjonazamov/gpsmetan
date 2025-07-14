@@ -3,8 +3,6 @@ from django.db.models import Sum
 from datetime import datetime, timedelta
 
 
-
-
 def get_filtered_device_stats(queryset, request):
     if 'daily' in request.GET:
         try:
@@ -18,21 +16,21 @@ def get_filtered_device_stats(queryset, request):
                 .annotate(total_flow=Sum('flow')) \
                 .order_by('hour')
 
-            response = []
+            response_data = []
             for item in data:
                 hour_start = item['hour']
                 hour_end = hour_start + timedelta(hours=1)
 
-                coords = queryset.filter(time__gte=hour_start, time__lt=hour_end) \
-                    .values('lat', 'lon')
+                coord = queryset.filter(time__gte=hour_start, time__lt=hour_end).values('lat', 'lon').first()
 
-                response.append({
+                response_data.append({
                     "hour": hour_start.strftime("%H:00"),
                     "flow": round(item['total_flow'], 2),
-                    "path": list(coords)
+                    "lat": coord['lat'] if coord else None,
+                    "lon": coord['lon'] if coord else None
                 })
 
-            return {"type": "daily", "data": response}
+            return {"type": "daily", "data": response_data}
 
         except Exception as e:
             print("Xatolik (daily):", e)
@@ -52,21 +50,21 @@ def get_filtered_device_stats(queryset, request):
                 .annotate(total_flow=Sum('flow')) \
                 .order_by('day')
 
-            response = []
+            response_data = []
             for item in data:
                 day_start = item['day']
                 day_end = day_start + timedelta(days=1)
 
-                coords = queryset.filter(time__gte=day_start, time__lt=day_end) \
-                    .values('lat', 'lon')
+                coord = queryset.filter(time__gte=day_start, time__lt=day_end).values('lat', 'lon').first()
 
-                response.append({
+                response_data.append({
                     "date": day_start.strftime("%Y-%m-%d"),
                     "flow": round(item['total_flow'], 2),
-                    "path": list(coords)
+                    "lat": coord['lat'] if coord else None,
+                    "lon": coord['lon'] if coord else None
                 })
 
-            return {"type": "range", "data": response}
+            return {"type": "range", "data": response_data}
 
         except Exception as e:
             print("Xatolik (range):", e)

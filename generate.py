@@ -8,16 +8,15 @@ CENTER_LAT = 41.3123
 CENTER_LON = 69.2791
 RADIUS_KM = 120  
 
-DAYS = 7
-HOURS_PER_DAY = 24
-POSTS_PER_HOUR = 2
-TOTAL_POSTS = DAYS * HOURS_PER_DAY * POSTS_PER_HOUR
+DAYS = 31   # 31 kunlik
+TOTAL_POSTS = DAYS  # Har kuni 1 dona
 
 # API ma'lumotlari
-API_URL = "http://127.0.0.1:8045/api/sensor-data/"
-DEVICE_ID = 456
+API_URL = "https://gpsmetan.felixits.uz/api/sensor-data/"
+DEVICE_ID = 897
 
-POST_MINUTES = [13, 54]
+POST_HOUR = 13
+POST_MINUTE = 54
 
 def generate_path_coordinates(center_lat, center_lon, radius_km, points):
     coords = []
@@ -30,7 +29,7 @@ def generate_path_coordinates(center_lat, center_lon, radius_km, points):
 
 coordinates = generate_path_coordinates(CENTER_LAT, CENTER_LON, RADIUS_KM, TOTAL_POSTS)
 
-simulation_start_date = datetime(2024, 7, 8)
+simulation_start_date = datetime(2025, 7, 8)
 
 def generate_random_data(lat, lon, current_time):
     return {
@@ -45,22 +44,17 @@ def generate_random_data(lat, lon, current_time):
 
 print("Yuborish boshlandi...")
 
-index = 0
-
 for day_offset in range(DAYS):
-    for hour in range(HOURS_PER_DAY):
-        for minute in POST_MINUTES:
-            current_time = simulation_start_date + timedelta(days=day_offset, hours=hour, minutes=minute)
-            lat, lon = coordinates[index % len(coordinates)]
-            data = generate_random_data(lat, lon, current_time)
+    current_time = simulation_start_date + timedelta(days=day_offset, hours=POST_HOUR, minutes=POST_MINUTE)
+    lat, lon = coordinates[day_offset]
+    data = generate_random_data(lat, lon, current_time)
 
-            try:
-                response = requests.post(API_URL, json=data)
-                print(f"[{current_time}] Yuborildi: {data} => Status: {response.status_code}")
-            except Exception as e:
-                print(f"Xato: {e}")
+    try:
+        response = requests.post(API_URL, json=data)
+        print(f"[{current_time}] Yuborildi: {data} => Status: {response.status_code}")
+    except Exception as e:
+        print(f"Xato: {e}")
 
-            index += 1
-            time.sleep(0.05)  
+    time.sleep(0.05)  
 
-print("Haftalik 336 ta simulyatsiya yuborildi.")
+print(f"{DAYS} kunlik simulyatsiya yuborildi.")
