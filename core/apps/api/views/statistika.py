@@ -20,7 +20,7 @@ def get_filtered_device_stats(queryset, request):
                 hour_start = item['hour']
                 hour_end = hour_start + timedelta(hours=1)
 
-                points = queryset.filter(time__gte=hour_start, time__lt=hour_end).values('time', 'lat', 'lon', 'pressure')
+                points = queryset.filter(time__gte=hour_start, time__lt=hour_end).values('time', 'lat', 'lon', 'pressure').order_by('time')
 
                 path = []
                 for point in points:
@@ -34,7 +34,7 @@ def get_filtered_device_stats(queryset, request):
                 response_data.append({
                     "hour": hour_start.strftime("%H:00"),
                     "flow": round(item['total_flow'], 2),
-                    "path": path
+                    "path": path  # Har bir soatdagi barcha nuqtalar
                 })
 
             return {"type": "daily", "data": response_data}
@@ -62,7 +62,7 @@ def get_filtered_device_stats(queryset, request):
                 day_start = item['day']
                 day_end = day_start + timedelta(days=1)
 
-                points = queryset.filter(time__gte=day_start, time__lt=day_end).values('time', 'lat', 'lon', 'pressure')
+                points = queryset.filter(time__gte=day_start, time__lt=day_end).values('time', 'lat', 'lon', 'pressure').order_by('time')
 
                 path = []
                 for point in points:
