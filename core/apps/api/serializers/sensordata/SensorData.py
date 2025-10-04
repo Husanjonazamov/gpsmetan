@@ -13,6 +13,8 @@ class SensorDeviceItemSerializer(serializers.ModelSerializer):
         ]
     
 class BaseSensordataSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S", read_only=True)
+    time = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S", read_only=True)
     class Meta:
         model = SensordataModel
         fields = [
