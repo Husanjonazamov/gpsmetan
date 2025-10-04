@@ -19,7 +19,8 @@ from core.apps.api.views.statistika import get_filtered_device_stats
 
 @extend_schema(tags=["SensorData"])
 class SensordataView(BaseViewSetMixin, ModelViewSet):
-    queryset = SensordataModel.objects.all()
+    queryset = SensordataModel.objects.all().order_by("-created_at") 
+
     serializer_class = ListSensordataSerializer
     permission_classes = [AllowAny]
 
