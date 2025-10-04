@@ -17,7 +17,6 @@ from core.apps.api.views.statistika import get_filtered_device_stats
 
 
 
-
 @extend_schema(tags=["SensorData"])
 class SensordataView(BaseViewSetMixin, ModelViewSet):
     queryset = SensordataModel.objects.all()
@@ -39,8 +38,6 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
     
     
-    
-    
     @action(detail=False, methods=['get'], url_path=r"by-device/(?P<device_id>\d+)", permission_classes=[AllowAny])
     def by_device(self, request, device_id):
         try:
@@ -58,7 +55,7 @@ class SensordataView(BaseViewSetMixin, ModelViewSet):
                 "deviceId": device.deviceId,
                 "stats": stats_result["data"]
             })
-        sensor_data = queryset.order_by("-time")
+        sensor_data = queryset.order_by("-created_at")
         serializer = ListSensordataSerializer(sensor_data, many=True)
         
         return Response({

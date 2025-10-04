@@ -22,7 +22,9 @@ class BaseSensordataSerializer(serializers.ModelSerializer):
             "lat",
             "lon",
             "time",
-            "temperature"
+            "temperature",
+            "created_at"
+            
         ]
 
 
